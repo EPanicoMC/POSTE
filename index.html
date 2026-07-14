@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#003DA5">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Timbrature">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <link rel="stylesheet" href="css/style.css">
+  <title>Timbrature Poste</title>
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <h1><span class="header-logo">PI</span> Timbrature</h1>
+  </header>
+
+  <!-- Vista: Oggi -->
+  <main class="main-content">
+    <section id="view-oggi" class="view active">
+      <div class="today-date">
+        <div class="day-name" id="today-day-name"></div>
+        <div class="date" id="today-date"></div>
+      </div>
+
+      <div class="stamp-buttons">
+        <button class="btn-stamp entrata" onclick="App.stamp('entrata')">
+          <span class="stamp-icon">&#x2B95;</span>
+          ENTRATA
+          <span class="stamp-time" id="current-time"></span>
+        </button>
+        <button class="btn-stamp uscita" onclick="App.stamp('uscita')">
+          <span class="stamp-icon">&#x2B05;</span>
+          USCITA
+          <span class="stamp-time" id="current-time-2"></span>
+        </button>
+      </div>
+
+      <div class="card progress-section">
+        <div class="progress-header">
+          <span class="progress-hours" id="today-hours">0h 00m</span>
+          <span class="progress-target">/ 7h 42m</span>
+        </div>
+        <div class="progress-bar-container">
+          <div class="progress-bar" id="today-progress" style="width: 0%"></div>
+        </div>
+        <div class="progress-delta" id="today-delta"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Timbrature di oggi</div>
+        <ul class="stamps-list" id="today-stamps-list">
+          <li class="empty-state">
+            <div class="empty-icon">&#128339;</div>
+            <p>Nessuna timbratura registrata</p>
+          </li>
+        </ul>
+      </div>
+
+      <div class="sync-status" id="sync-status">
+        <span class="sync-dot" id="sync-dot"></span>
+        <span id="sync-text">Solo locale</span>
+      </div>
+    </section>
+
+    <!-- Vista: Calendario -->
+    <section id="view-calendario" class="view">
+      <div class="calendar-nav">
+        <button class="btn-nav" onclick="Calendar.prevMonth()">&#9664;</button>
+        <span class="month-name" id="cal-month-name"></span>
+        <button class="btn-nav" onclick="Calendar.nextMonth()">&#9654;</button>
+      </div>
+      <div class="card">
+        <div class="calendar-grid" id="calendar-grid"></div>
+      </div>
+    </section>
+
+    <!-- Vista: Report -->
+    <section id="view-report" class="view">
+      <div class="report-nav">
+        <button class="btn-nav" onclick="Report.prevMonth()">&#9664;</button>
+        <span class="month-name" id="report-month-name"></span>
+        <button class="btn-nav" onclick="Report.nextMonth()">&#9654;</button>
+      </div>
+
+      <div class="report-summary" id="report-summary"></div>
+
+      <div class="report-table-container">
+        <table class="report-table" id="report-table"></table>
+      </div>
+
+      <div class="export-buttons">
+        <button class="btn-export excel" onclick="Export.excel()">
+          <span>&#128196;</span> Excel
+        </button>
+        <button class="btn-export pdf" onclick="Export.pdf()">
+          <span>&#128462;</span> PDF
+        </button>
+      </div>
+    </section>
+
+    <!-- Vista: Impostazioni -->
+    <section id="view-impostazioni" class="view">
+      <div class="card">
+        <div class="card-title">Configurazione GitHub</div>
+        <p style="font-size:0.8rem;color:var(--text-light);margin-bottom:16px;">
+          Configura la sincronizzazione per salvare le timbrature nel tuo repository GitHub.
+        </p>
+        <div class="setting-group">
+          <label class="setting-label">Owner (username GitHub)</label>
+          <input type="text" class="setting-input" id="cfg-owner" placeholder="es. mio-username" autocomplete="off">
+        </div>
+        <div class="setting-group">
+          <label class="setting-label">Repository</label>
+          <input type="text" class="setting-input" id="cfg-repo" placeholder="es. timbrature-poste" autocomplete="off">
+        </div>
+        <div class="setting-group">
+          <label class="setting-label">Personal Access Token</label>
+          <input type="password" class="setting-input" id="cfg-pat" placeholder="ghp_..." autocomplete="off">
+          <div class="setting-hint">Genera un PAT con permesso "repo" da GitHub Settings → Developer settings → Personal access tokens</div>
+        </div>
+        <button class="btn-primary" onclick="App.testGitHub()" id="btn-test-gh">Testa Connessione</button>
+        <button class="btn-secondary" onclick="App.saveGitHub()">Salva Configurazione</button>
+        <button class="btn-secondary" onclick="App.syncNow()" style="background:var(--poste-blu);color:white;margin-top:8px;">Sincronizza Ora</button>
+      </div>
+
+      <div class="card" style="margin-top:12px;">
+        <div class="card-title">Dati</div>
+        <button class="btn-secondary" onclick="App.exportAllData()" style="margin-top:0;">Esporta tutti i dati (JSON)</button>
+        <button class="btn-secondary" onclick="App.importDataPrompt()" style="background:#E0E0E0;color:var(--text);">Importa dati (JSON)</button>
+        <input type="file" id="import-file" accept=".json" style="display:none" onchange="App.importData(event)">
+      </div>
+    </section>
+  </main>
+
+  <!-- Bottom Navigation -->
+  <nav class="bottom-nav">
+    <button class="nav-item active" data-view="oggi" onclick="App.navigate('oggi')">
+      <span class="nav-icon">&#127968;</span>
+      <span>Oggi</span>
+    </button>
+    <button class="nav-item" data-view="calendario" onclick="App.navigate('calendario')">
+      <span class="nav-icon">&#128197;</span>
+      <span>Calendario</span>
+    </button>
+    <button class="nav-item" data-view="report" onclick="App.navigate('report')">
+      <span class="nav-icon">&#128202;</span>
+      <span>Report</span>
+    </button>
+    <button class="nav-item" data-view="impostazioni" onclick="App.navigate('impostazioni')">
+      <span class="nav-icon">&#9881;</span>
+      <span>Impostazioni</span>
+    </button>
+  </nav>
+
+  <!-- Modal dettaglio giorno -->
+  <div class="modal-overlay" id="modal-overlay" onclick="App.closeModal(event)">
+    <div class="modal" id="modal">
+      <div class="modal-handle"></div>
+      <div id="modal-content"></div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <!-- Librerie esterne -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.2/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+
+  <!-- Moduli app -->
+  <script src="js/storage.js"></script>
+  <script src="js/calendar.js"></script>
+  <script src="js/report.js"></script>
+  <script src="js/export.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
