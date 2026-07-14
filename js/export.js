@@ -65,10 +65,10 @@ const Export = (() => {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF('p', 'mm', 'a4');
 
-    // Colori Poste
-    const GIALLO = [255, 204, 0];
-    const BLU = [0, 61, 165];
-    const GRIGIO = [245, 245, 245];
+    // Colori ufficiali Poste Italiane
+    const GIALLO = [243, 216, 41];
+    const BLU = [0, 80, 185];
+    const GRIGIO = [248, 249, 250];
 
     // Header con brand Poste Italiane
     doc.setFillColor(...GIALLO);

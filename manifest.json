@@ -4,8 +4,8 @@
   "description": "Gestione timbrature ingresso/uscita ufficio",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#F5F5F5",
-  "theme_color": "#003DA5",
+  "background_color": "#F8F9FA",
+  "theme_color": "#0050B9",
   "orientation": "portrait",
   "icons": [
     {
