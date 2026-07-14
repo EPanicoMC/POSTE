@@ -127,7 +127,7 @@
     <section id="view-impostazioni" class="view">
       <div class="card">
         <div class="card-label">Sincronizzazione GitHub</div>
-        <p style="font-size:0.78rem;color:var(--gray-500);margin-bottom:16px;line-height:1.5;">
+        <p style="font-size:0.78rem;color:var(--text-3);margin-bottom:16px;line-height:1.5;">
           Collega il tuo repository GitHub per salvare le timbrature in cloud.
         </p>
         <div class="setting-group">
@@ -151,7 +151,7 @@
       <div class="card">
         <div class="card-label">Gestione dati</div>
         <button class="btn-secondary" onclick="App.exportAllData()" style="margin-top:0;">Esporta backup (JSON)</button>
-        <button class="btn-secondary" onclick="App.importDataPrompt()" style="background:var(--gray-200);color:var(--gray-700);">Importa backup (JSON)</button>
+        <button class="btn-secondary" onclick="App.importDataPrompt()" style="background:var(--bg);color:var(--text);">Importa backup (JSON)</button>
         <input type="file" id="import-file" accept=".json" style="display:none" onchange="App.importData(event)">
       </div>
     </section>
