@@ -1,4 +1,4 @@
-const CACHE_NAME = 'timbrature-poste-v4';
+const CACHE_NAME = 'timbrature-poste-v5';
 const ASSETS = [
   './',
   './index.html',

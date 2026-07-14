@@ -455,9 +455,17 @@ const App = (() => {
       renderToday();
     }
 
-    // Registra Service Worker
+    // Registra Service Worker con auto-update
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('./sw.js').catch(() => {});
+      navigator.serviceWorker.register('./sw.js').then(reg => {
+        reg.update();
+        reg.addEventListener('updatefound', () => {
+          const nw = reg.installing;
+          nw.addEventListener('statechange', () => {
+            if (nw.state === 'activated') location.reload();
+          });
+        });
+      }).catch(() => {});
     }
   }
 
