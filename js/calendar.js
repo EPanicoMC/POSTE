@@ -86,8 +86,15 @@ const Calendar = (() => {
       let statusClass = 'no-data';
       let hoursText = '—';
 
+      let deltaHtml = '';
+
       if (stamps.length > 0) {
         hoursText = Storage.formatMinutes(netMins);
+        const delta = netMins - Storage.TARGET_MINUTES;
+        const deltaSign = delta >= 0 ? '+' : '';
+        const deltaClass = delta >= 0 ? 'positive' : 'negative';
+        deltaHtml = `<span class="day-delta ${deltaClass}">${deltaSign}${Storage.formatMinutes(delta)}</span>`;
+
         if (netMins >= Storage.TARGET_MINUTES) {
           statusClass = 'green';
         } else if (netMins >= 360) {
@@ -105,6 +112,7 @@ const Calendar = (() => {
         <button class="calendar-day ${statusClass}${todayClass}" onclick="App.openDayDetail('${dateStr}')">
           <span class="day-num">${date.getDate()}</span>
           <span class="day-hours">${hoursText}</span>
+          ${deltaHtml}
         </button>
       `;
     });

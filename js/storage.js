@@ -218,6 +218,8 @@ const Storage = (() => {
 
   // Soglia giornaliera in minuti (7h 42m)
   const TARGET_MINUTES = 462;
+  // Soglia settimanale in minuti (37h 06m = 37,1 ore)
+  const WEEKLY_TARGET_MINUTES = 2226;
 
   // Giorni lavorativi del mese (lun-ven)
   function getWorkingDays(year, month) {
@@ -233,6 +235,105 @@ const Storage = (() => {
     return days;
   }
 
+  // Giorni lavorativi della settimana ISO contenente una data
+  function getWeekDays(refDate) {
+    const d = new Date(refDate);
+    const dow = d.getDay();
+    const diffToMon = dow === 0 ? -6 : 1 - dow;
+    const monday = new Date(d);
+    monday.setDate(d.getDate() + diffToMon);
+    const days = [];
+    for (let i = 0; i < 5; i++) {
+      const day = new Date(monday);
+      day.setDate(monday.getDate() + i);
+      days.push(day);
+    }
+    return days;
+  }
+
+  // Calcolo riepilogo settimanale
+  function getWeekSummary(refDate) {
+    const days = getWeekDays(refDate);
+    const today = new Date();
+    let totalMins = 0;
+    let daysWorked = 0;
+    let daysPast = 0;
+
+    days.forEach(date => {
+      const dateStr = formatDateISO(date);
+      const stamps = getDay(dateStr);
+      const net = calcNetMinutes(stamps);
+      if (stamps.length > 0) {
+        totalMins += net;
+        daysWorked++;
+      }
+      if (date <= today) daysPast++;
+    });
+
+    const expectedSoFar = daysPast * TARGET_MINUTES;
+    return {
+      days,
+      totalMins,
+      daysWorked,
+      daysPast,
+      delta: totalMins - expectedSoFar,
+      targetMins: WEEKLY_TARGET_MINUTES
+    };
+  }
+
+  // Calcolo streak (giorni consecutivi sopra soglia)
+  function calcStreak() {
+    const today = new Date();
+    let streak = 0;
+    let date = new Date(today);
+
+    while (true) {
+      const dow = date.getDay();
+      if (dow === 0 || dow === 6) {
+        date.setDate(date.getDate() - 1);
+        continue;
+      }
+      const dateStr = formatDateISO(date);
+      const stamps = getDay(dateStr);
+      if (stamps.length === 0) break;
+      const net = calcNetMinutes(stamps);
+      if (net >= TARGET_MINUTES) {
+        streak++;
+        date.setDate(date.getDate() - 1);
+      } else {
+        break;
+      }
+    }
+    return streak;
+  }
+
+  // Compliance mensile (% giorni sopra soglia)
+  function getMonthCompliance(year, month) {
+    const workDays = getWorkingDays(year, month);
+    const today = new Date();
+    let pastDays = 0;
+    let aboveDays = 0;
+
+    workDays.forEach(date => {
+      if (date > today) return;
+      const dateStr = formatDateISO(date);
+      const stamps = getDay(dateStr);
+      if (stamps.length > 0) {
+        pastDays++;
+        if (calcNetMinutes(stamps) >= TARGET_MINUTES) aboveDays++;
+      }
+    });
+
+    return { pastDays, aboveDays, pct: pastDays > 0 ? Math.round((aboveDays / pastDays) * 100) : 0 };
+  }
+
+  function formatDateISO(date) {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+  }
+
   return {
     getDay,
     getAllData,
@@ -242,8 +343,14 @@ const Storage = (() => {
     updateStamp,
     calcNetMinutes,
     formatMinutes,
+    formatDateISO,
     TARGET_MINUTES,
+    WEEKLY_TARGET_MINUTES,
     getWorkingDays,
+    getWeekDays,
+    getWeekSummary,
+    calcStreak,
+    getMonthCompliance,
     getConfig,
     saveConfig,
     clearConfig,

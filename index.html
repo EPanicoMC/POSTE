@@ -39,7 +39,8 @@
         </button>
       </div>
 
-      <div class="card progress-section">
+      <div class="card progress-section animate-in">
+        <div class="card-title">Ore Giornaliere</div>
         <div class="progress-header">
           <span class="progress-hours" id="today-hours">0h 00m</span>
           <span class="progress-target">/ 7h 42m</span>
@@ -50,7 +51,26 @@
         <div class="progress-delta" id="today-delta"></div>
       </div>
 
-      <div class="card">
+      <div class="card week-summary animate-in">
+        <div class="card-title">Riepilogo Settimana</div>
+        <div class="week-bar" id="week-bar"></div>
+        <div class="week-stats" id="week-stats"></div>
+      </div>
+
+      <div class="stats-row" id="stats-row">
+        <div class="stat-card streak animate-in">
+          <div class="stat-icon">&#128293;</div>
+          <div class="stat-value" id="streak-value">0</div>
+          <div class="stat-label">Giorni Streak</div>
+        </div>
+        <div class="stat-card animate-in">
+          <div class="stat-icon">&#9989;</div>
+          <div class="stat-value" id="compliance-value">0%</div>
+          <div class="stat-label">Compliance Mese</div>
+        </div>
+      </div>
+
+      <div class="card animate-in">
         <div class="card-title">Timbrature di oggi</div>
         <ul class="stamps-list" id="today-stamps-list">
           <li class="empty-state">

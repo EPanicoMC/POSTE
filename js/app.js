@@ -83,6 +83,11 @@ const App = (() => {
       deltaEl.textContent = '';
     }
 
+    // Animazione ore
+    const hoursEl = document.getElementById('today-hours');
+    hoursEl.classList.add('animated');
+    setTimeout(() => hoursEl.classList.remove('animated'), 600);
+
     // Lista timbrature
     const list = document.getElementById('today-stamps-list');
     if (stamps.length === 0) {
@@ -107,7 +112,64 @@ const App = (() => {
       `).join('');
     }
 
+    renderWeekSummary();
+    renderStats();
     updateSyncStatus();
+  }
+
+  // Riepilogo settimanale
+  function renderWeekSummary() {
+    const weekData = Storage.getWeekSummary(new Date());
+    const todayDate = todayStr();
+    const dayLabels = ['L', 'M', 'M', 'G', 'V'];
+
+    // Barra settimanale con indicatore giorno corrente
+    const barEl = document.getElementById('week-bar');
+    barEl.innerHTML = weekData.days.map((date, i) => {
+      const dateStr = Storage.formatDateISO(date);
+      const stamps = Storage.getDay(dateStr);
+      const net = Storage.calcNetMinutes(stamps);
+      const isToday = dateStr === todayDate;
+      let cls = '';
+      if (stamps.length > 0) {
+        if (net >= Storage.TARGET_MINUTES) cls = 'green';
+        else if (net >= 360) cls = 'orange';
+        else cls = 'red';
+      }
+      return `<div class="week-bar-day ${cls}${isToday ? ' active' : ''}" title="${dayLabels[i]}: ${stamps.length > 0 ? Storage.formatMinutes(net) : '—'}"></div>`;
+    }).join('');
+
+    // Statistiche settimanali
+    const statsEl = document.getElementById('week-stats');
+    const weekDelta = weekData.totalMins - Storage.WEEKLY_TARGET_MINUTES;
+    const weekDeltaForDisplay = weekData.totalMins - (weekData.daysPast * Storage.TARGET_MINUTES);
+    const deltaSign = weekDeltaForDisplay >= 0 ? '+' : '';
+    const deltaClass = weekDeltaForDisplay >= 0 ? 'positive' : 'negative';
+
+    statsEl.innerHTML = `
+      <div class="week-stat">
+        <div class="week-stat-value">${Storage.formatMinutes(weekData.totalMins)}</div>
+        <div class="week-stat-label">Ore Fatte</div>
+      </div>
+      <div class="week-stat">
+        <div class="week-stat-value">${Storage.formatMinutes(Storage.WEEKLY_TARGET_MINUTES)}</div>
+        <div class="week-stat-label">Obiettivo Sett.</div>
+      </div>
+      <div class="week-stat delta">
+        <div class="week-stat-value ${deltaClass}">${deltaSign}${Storage.formatMinutes(weekDeltaForDisplay)}</div>
+        <div class="week-stat-label">Delta</div>
+      </div>
+    `;
+  }
+
+  // Streak e compliance
+  function renderStats() {
+    const streak = Storage.calcStreak();
+    const now = new Date();
+    const compliance = Storage.getMonthCompliance(now.getFullYear(), now.getMonth());
+
+    document.getElementById('streak-value').textContent = streak;
+    document.getElementById('compliance-value').textContent = `${compliance.pct}%`;
   }
 
   // Timbratura rapida
